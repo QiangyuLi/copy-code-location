@@ -18,12 +18,20 @@ export function activate(context: vscode.ExtensionContext) {
         // Get the current file path
         const filePath = editor.document.uri.fsPath;
         
-        // Get the current cursor position (line number)
-        const position = editor.selection.active;
-        const lineNumber = position.line + 1; // Line numbers are 0-indexed, so add 1
+        // Get the selection range
+        const selection = editor.selection;
+        const startLine = selection.start.line + 1; // Line numbers are 0-indexed, so add 1
+        const endLine = selection.end.line + 1;
         
         // Format the location string
-        const location = `${filePath}:${lineNumber}`;
+        let location: string;
+        if (startLine === endLine || selection.isEmpty) {
+            // Single line or no selection
+            location = `${filePath}:${startLine}`;
+        } else {
+            // Multiple lines selected
+            location = `${filePath}:${startLine}-${endLine}`;
+        }
         
         // Copy to clipboard
         vscode.env.clipboard.writeText(location).then(() => {
